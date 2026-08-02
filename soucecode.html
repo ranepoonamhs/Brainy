@@ -322,6 +322,25 @@
             border: 1px solid var(--border);
         }
 
+        /* Voice Modal Indicator Pulse */
+        .mic-pulse {
+            width: 60px;
+            height: 60px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            color: white;
+            font-size: 1.8rem;
+            animation: pulse-animation 1.5s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0px rgba(220, 38, 38, 0.6); }
+            100% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); }
+        }
+
         /* Buttons & Controls */
         button {
             background-color: var(--primary);
@@ -524,6 +543,21 @@
         </div>
     </div>
 
+    <!-- Session Voice Input Modal -->
+    <div id="sessionVoiceModal" class="modal-overlay hidden">
+        <div class="modal-content" style="text-align: center;">
+            <div class="mic-pulse">🎙️</div>
+            <h2>Listening for Question...</h2>
+            <p id="voiceSessionStatus" class="stats" style="margin-bottom: 15px;">Speak clearly into your microphone now.</p>
+            <textarea id="sessionVoiceLiveOutput" rows="3" placeholder="Transcribed spoken question will appear here..." style="font-size: 0.95rem;"></textarea>
+            
+            <div class="btn-row" style="margin-top: 15px;">
+                <button onclick="saveVoiceQuestionInSession()" style="background-color: var(--success);">💾 Save Question to Chapter</button>
+                <button class="btn-secondary" onclick="closeSessionVoiceModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Custom Chapter Selector Screen -->
     <div id="selectorScreen" class="card-container hidden">
         <h2>🎯 Custom Daily Chapter Selector</h2>
@@ -569,7 +603,10 @@
         </div>
         
         <div class="btn-row" style="margin-top: 15px; justify-content: space-between; align-items: center;">
-            <button class="action-btn" onclick="addQuestionInSessionPrompt()" style="border-color: var(--primary); color: var(--primary); padding: 8px 16px;">➕ Add Question to Chapter</button>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="action-btn" onclick="addQuestionInSessionPrompt()" style="border-color: var(--primary); color: var(--primary); padding: 8px 16px;">➕ Add Question</button>
+                <button class="action-btn" onclick="addQuestionInSessionVoice()" style="border-color: var(--warning); color: var(--warning); padding: 8px 16px;">🎙️ Add Question by Voice</button>
+            </div>
             <button class="btn-secondary" onclick="showScreen('dashboard')">🏠 End Session &amp; Save Progress</button>
             <button class="action-btn" onclick="deleteCurrentCardInSession()" style="border-color: var(--danger); color: var(--danger); padding: 8px 16px;">🗑️ Delete This Question</button>
         </div>
@@ -711,6 +748,7 @@ Who wrote Hamlet?"></textarea>
 
     let activeQueue = [];
     let currentCardIndex = 0;
+    let activeSessionRecognition = null;
 
     function getTodayDateString() {
         const d = new Date();
@@ -724,7 +762,7 @@ Who wrote Hamlet?"></textarea>
         return d.toISOString().split('T')[0];
     }
 
-    /* Voice Recognition Functionality */
+    /* Voice Recognition Functionality for Creator */
     function startVoiceInput() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -769,6 +807,80 @@ Who wrote Hamlet?"></textarea>
             voiceBtn.innerText = "🎙️ Dictate Question by Voice";
             voiceBtn.style.backgroundColor = "var(--warning)";
         }
+    }
+
+    /* Voice Recognition Functionality During Active Review Session */
+    function addQuestionInSessionVoice() {
+        if(currentCardIndex >= activeQueue.length) {
+            alert("No active session card found to link the question to!");
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser does not support Voice Commands. Please use Google Chrome or Microsoft Edge.");
+            return;
+        }
+
+        document.getElementById('sessionVoiceLiveOutput').value = '';
+        document.getElementById('voiceSessionStatus').innerText = "Listening... Speak into your microphone.";
+        document.getElementById('sessionVoiceModal').classList.remove('hidden');
+
+        activeSessionRecognition = new SpeechRecognition();
+        activeSessionRecognition.lang = 'en-US';
+        activeSessionRecognition.interimResults = true;
+        activeSessionRecognition.maxAlternatives = 1;
+
+        activeSessionRecognition.onresult = function(event) {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            document.getElementById('sessionVoiceLiveOutput').value = transcript;
+        };
+
+        activeSessionRecognition.onerror = function(event) {
+            document.getElementById('voiceSessionStatus').innerText = "Voice error: " + event.error;
+        };
+
+        activeSessionRecognition.onspeechend = function() {
+            document.getElementById('voiceSessionStatus').innerText = "Speech recorded! Review and click Save below.";
+        };
+
+        activeSessionRecognition.start();
+    }
+
+    function saveVoiceQuestionInSession() {
+        const text = document.getElementById('sessionVoiceLiveOutput').value.trim();
+        if(!text) {
+            alert("Please dictate or type a question before saving!");
+            return;
+        }
+
+        if(currentCardIndex >= activeQueue.length) return;
+        const currentCard = activeQueue[currentCardIndex];
+
+        cards.push({
+            id: Date.now() + Math.random(),
+            subject: currentCard.subject,
+            chapter: currentCard.chapter,
+            q: text,
+            box: 1,
+            nextReviewDate: getTodayDateString(),
+            lastCompletedDate: ""
+        });
+
+        saveData();
+        alert(`New question added to ${currentCard.subject} ➔ ${currentCard.chapter}!`);
+        closeSessionVoiceModal();
+    }
+
+    function closeSessionVoiceModal() {
+        if(activeSessionRecognition) {
+            try { activeSessionRecognition.stop(); } catch(e) {}
+            activeSessionRecognition = null;
+        }
+        document.getElementById('sessionVoiceModal').classList.add('hidden');
     }
 
     function exportDataJSON() {
