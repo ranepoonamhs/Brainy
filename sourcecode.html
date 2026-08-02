@@ -1,0 +1,2166 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitner - Exam Section Edition</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-surface: #f1f5f9;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 { text-align: center; color: var(--primary); }
+        .card-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            padding: 28px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+        .hero-banner {
+            background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
+        }
+        .hero-banner h2 { color: white; margin-top: 0; }
+        
+        /* Exam Section Tabs */
+        .exam-section-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .exam-tab-btn {
+            background: var(--card-surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .exam-tab-btn:hover {
+            border-color: var(--primary);
+            background: #e0e7ff;
+        }
+        .exam-tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        .exam-tab-btn h3 { margin: 0 0 4px 0; font-size: 1.1rem; color: inherit; }
+        .exam-tab-btn p { margin: 0; font-size: 0.8rem; color: inherit; opacity: 0.85; }
+
+        /* Box Matrix Grid */
+        .box-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .matrix-card {
+            background: var(--card-surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .matrix-card.due {
+            border-color: var(--warning);
+            box-shadow: 0 0 15px rgba(202, 138, 4, 0.15);
+        }
+        .matrix-card.not-applicable {
+            background: #f1f5f9;
+            opacity: 0.45;
+            border-color: #cbd5e1;
+            filter: grayscale(80%);
+        }
+        .matrix-card.completed-today {
+            background: #e2e8f0;
+            opacity: 0.75;
+            border-color: var(--success);
+        }
+        .matrix-card h3 { margin: 0 0 6px 0; color: var(--text); font-size: 1.15rem; }
+        .matrix-card p { margin: 4px 0; font-size: 0.85rem; color: var(--text-muted); }
+        .status-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .status-badge.due { background: #fef08a; color: #854d0e; }
+        .status-badge.done { background: #dcfce7; color: #166534; }
+        .status-badge.wait { background: #e2e8f0; color: #475569; }
+
+        /* Subject & Chapter Leitner Tracker Section */
+        .leitner-tracker-container {
+            background: var(--card-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .tracker-subject-group {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .tracker-subject-group h3 {
+            text-align: left;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+            font-size: 1.1rem;
+        }
+        .tracker-chapter-row {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tracker-chapter-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .leitner-box-pills-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .lbox-pill {
+            background: #e2e8f0;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid transparent;
+        }
+        .lbox-pill.has-cards {
+            background: #e0e7ff;
+            color: var(--primary);
+            border-color: #c7d2fe;
+        }
+
+        /* Curriculum Directory */
+        .curriculum-directory {
+            background: var(--card-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .directory-subject-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .directory-subject-card h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            font-size: 1.05rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chapter-list-item {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        /* Flashcard Box with Clean Structured Typography */
+        .flashcard-box {
+            background: #ffffff;
+            border: 2px dashed var(--border);
+            border-radius: 14px;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: left;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .question-formatted-wrapper {
+            width: 100%;
+            max-width: 800px;
+            line-height: 1.8;
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+        .question-title-tag {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .q-prefix {
+            font-weight: 700;
+            color: #334155;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .q-statement {
+            display: block;
+            padding-left: 20px;
+            border-left: 4px solid var(--primary);
+            font-style: italic;
+            color: #1e293b;
+            margin-top: 8px;
+        }
+        .question-body-text span.sentence-line {
+            display: block;
+            text-indent: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Custom Session Selector */
+        .selector-box {
+            background: var(--card-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+        .checkbox-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .checkbox-card input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 28px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        /* Buttons & Controls */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        button:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .btn-again { background-color: var(--danger); min-width: 150px; }
+        .btn-again:hover { background-color: #b91c1c; }
+        .btn-good { background-color: var(--success); min-width: 150px; }
+        .btn-good:hover { background-color: #15803d; }
+        .btn-secondary { background-color: #64748b; color: white; }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-reset { background-color: #7f1d1d; color: white; }
+        .btn-reset:hover { background-color: #991b1b; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            background: #ffffff;
+            color: var(--text);
+        }
+        label { font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 6px; color: #334155; }
+        .hidden { display: none !important; }
+        .stats { font-size: 0.9rem; color: var(--text-muted); }
+        .badge { background: #e0e7ff; color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-surface);
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stat-card h3 { margin: 0 0 4px 0; font-size: 1.75rem; color: var(--primary); }
+        .stat-card p { margin: 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+        .progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: var(--card-surface);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .progress-table th, .progress-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .progress-table th { background: #e2e8f0; color: #334155; font-weight: 600; }
+        .progress-bar-bg {
+            background: #cbd5e1;
+            border-radius: 6px;
+            height: 10px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-bar-fill {
+            background: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .action-btn { background: transparent; border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; color: var(--text); cursor: pointer; font-size: 0.85rem; }
+        .action-btn:hover { background: #e2e8f0; }
+        .tab-row { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        .tab-btn { background: #e2e8f0; color: var(--text); }
+        .tab-btn.active { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>🧠 Brainy</h1>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard" class="card-container hidden">
+        <div class="hero-banner">
+            <h2>Automated Spaced Repetition Control Center</h2>
+            <p id="queueSummaryText" style="font-size: 1.1rem; margin-bottom: 20px;">You have <strong>184</strong> intelligent card(s) queued for review today under <strong>Unit Test 1</strong>.</p>
+            <div class="btn-row" style="margin-top: 0;">
+                <button id="startStudyBtn" onclick="openReviewFilterModal()" style="background-color: white; color: var(--primary); font-size: 1.1rem; padding: 12px 28px; opacity: 1; cursor: pointer; display: inline-block;">🚀 Launch Today's Review</button>
+                <button onclick="showScreen('selectorScreen')" style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid white; font-size: 1.1rem; padding: 12px 28px;">🎯 Choose Custom Chapters</button>
+            </div>
+        </div>
+
+        <!-- 4 Exam Sections Switcher Bar -->
+        <h3>📌 Active Exam Section Target</h3>
+        <p style="text-align: center;" class="stats">Select which exam section you are currently preparing for. Each section functions as its own independent Leitner system silo!</p>
+        <div class="exam-section-tabs" id="examSectionTabsContainer">
+            <div class="exam-tab-btn active" onclick="switchActiveExamSection('Unit Test 1')">
+                <h3>📝 Unit Test 1</h3>
+                <p id="count_ut1">4 chapters active</p>
+            </div>
+            <div class="exam-tab-btn" onclick="switchActiveExamSection('Semester 1')">
+                <h3>📖 Semester 1</h3>
+                <p id="count_sem1">4 chapters active</p>
+            </div>
+            <div class="exam-tab-btn" onclick="switchActiveExamSection('Unit Test 2')">
+                <h3>📝 Unit Test 2</h3>
+                <p id="count_ut2">0 chapters active</p>
+            </div>
+            <div class="exam-tab-btn" onclick="switchActiveExamSection('Semester 2')">
+                <h3>🏆 Semester 2</h3>
+                <p id="count_sem2">0 chapters active</p>
+            </div>
+        </div>
+
+        <h3>📦 Leitner Box Schedule &amp; Status (<span id="activeSectionLabel">Unit Test 1</span>)</h3>
+        <p style="text-align: center;" class="stats">Boxes not applicable today are greyed out. Completed boxes for today are disabled and locked.</p>
+        <div class="box-matrix" id="boxMatrixGrid"><div class="matrix-card due">
+                <h3>Box 1</h3>
+                <p>Box 1: Every Day</p>
+                <p><strong>📦 184</strong> total</p>
+                <span class="status-badge due">🔥 184 Due Today</span>
+            </div><div class="matrix-card not-applicable">
+                <h3>Box 2</h3>
+                <p>Box 2: Tue &amp; Thu</p>
+                <p><strong>📦 63</strong> total</p>
+                <span class="status-badge wait">Resting (Not Due Today)</span>
+            </div><div class="matrix-card not-applicable">
+                <h3>Box 3</h3>
+                <p>Box 3: Fridays</p>
+                <p><strong>📦 0</strong> total</p>
+                <span class="status-badge wait">Resting (Not Due Today)</span>
+            </div><div class="matrix-card not-applicable">
+                <h3>Box 4</h3>
+                <p>Box 4: Fortnightly (1st &amp; 15th)</p>
+                <p><strong>📦 0</strong> total</p>
+                <span class="status-badge wait">Resting (Not Due Today)</span>
+            </div><div class="matrix-card not-applicable">
+                <h3>Box 5</h3>
+                <p>Box 5: Monthly Review</p>
+                <p><strong>📦 0</strong> total</p>
+                <span class="status-badge wait">Resting (Not Due Today)</span>
+            </div></div>
+
+        <h3>📈 Subject &amp; Chapter-Wise Leitner Box Tracker</h3>
+        <p style="text-align: center;" class="stats">Detailed real-time distribution of questions across Leitner Boxes 1 to 5 per chapter.</p>
+        <div class="leitner-tracker-container" id="chapterLeitnerTrackerContainer"><div class="tracker-subject-group">
+                <h3>📚 Geography</h3><div class="tracker-chapter-row">
+                    <span class="tracker-chapter-name">📖 CHAPTER 1: DISTRIBUTIONAL MAPS <span class="stats">(28 q)</span></span>
+                    <div class="leitner-box-pills-row"><span class="lbox-pill ">Box 1: <strong>0</strong></span><span class="lbox-pill has-cards">Box 2: <strong>28</strong></span><span class="lbox-pill ">Box 3: <strong>0</strong></span><span class="lbox-pill ">Box 4: <strong>0</strong></span><span class="lbox-pill ">Box 5: <strong>0</strong></span></div></div><div class="tracker-chapter-row">
+                    <span class="tracker-chapter-name">📖 CHAPTER 2: ENDOGENETIC MOVEMENTS <span class="stats">(35 q)</span></span>
+                    <div class="leitner-box-pills-row"><span class="lbox-pill ">Box 1: <strong>0</strong></span><span class="lbox-pill has-cards">Box 2: <strong>35</strong></span><span class="lbox-pill ">Box 3: <strong>0</strong></span><span class="lbox-pill ">Box 4: <strong>0</strong></span><span class="lbox-pill ">Box 5: <strong>0</strong></span></div></div><div class="tracker-chapter-row">
+                    <span class="tracker-chapter-name">📖 CHAPTER 6: THE PROPERTIES OF SEA WATER <span class="stats">(57 q)</span></span>
+                    <div class="leitner-box-pills-row"><span class="lbox-pill has-cards">Box 1: <strong>57</strong></span><span class="lbox-pill ">Box 2: <strong>0</strong></span><span class="lbox-pill ">Box 3: <strong>0</strong></span><span class="lbox-pill ">Box 4: <strong>0</strong></span><span class="lbox-pill ">Box 5: <strong>0</strong></span></div></div></div><div class="tracker-subject-group">
+                <h3>📚 Science</h3><div class="tracker-chapter-row">
+                    <span class="tracker-chapter-name">📖 CHAPTER 1: LAWS OF MOTION <span class="stats">(127 q)</span></span>
+                    <div class="leitner-box-pills-row"><span class="lbox-pill has-cards">Box 1: <strong>127</strong></span><span class="lbox-pill ">Box 2: <strong>0</strong></span><span class="lbox-pill ">Box 3: <strong>0</strong></span><span class="lbox-pill ">Box 4: <strong>0</strong></span><span class="lbox-pill ">Box 5: <strong>0</strong></span></div></div></div></div>
+
+        <h3>📚 Complete Subject &amp; Chapter Directory</h3>
+        <p style="text-align: center;" class="stats">Master directory listing all subjects, chapters, and question inventories.</p>
+        <div class="curriculum-directory" id="completeDirectoryContainer"><div class="directory-subject-card">
+                <h4>
+                    <span>📚 Geography</span>
+                    <span class="stats">(458 total questions)</span>
+                </h4><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 1: DISTRIBUTIONAL MAPS</strong> (28 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Unit Test 1</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 2: ENDOGENETIC MOVEMENTS</strong> (35 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Unit Test 1</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 3: EXOGENETIC PROCESSES PART - 1</strong> (26 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 4: EXOGENETIC PROCESSES PART - II</strong> (28 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 5: PRECIPITATION</strong> (45 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 6: THE PROPERTIES OF SEA WATER</strong> (57 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Unit Test 1, Semester 1</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 7: INTERNATIONAL DATE LINE</strong> (29 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 8: INTRODUCTION TO ECONOMICS</strong> (24 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 9: TRADE</strong> (41 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 10: URBANISATION</strong> (36 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Semester 1</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 11: TRANSPORT AND COMMUNICATION</strong> (69 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Semester 1</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 12: TOURISM</strong> (40 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Semester 1</span></div>
+                    </div></div><div class="directory-subject-card">
+                <h4>
+                    <span>📚 Science</span>
+                    <span class="stats">(933 total questions)</span>
+                </h4><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 1: LAWS OF MOTION</strong> (127 q)</span>
+                        <div><span class="badge" style="background:#dcfce7; color:#166534;">Assigned: Unit Test 1</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 2: WORK AND ENERGY</strong> (94 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 3: CURRENT ELECTRICITY</strong> (90 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 4: MEASUREMENT OF MATTER</strong> (131 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 5: ACIDS, BASES AND SALTS</strong> (56 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 6: CLASSIFICATION OF PLANTS</strong> (23 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 7: ENERGY FLOW IN AN ECOSYSTEM</strong> (34 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>CHAPTER 8: USEFUL AND HARMFUL MICROBES</strong> (39 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 9: Environmental Management</strong> (34 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 10: Information Communication Technology (ICT)</strong> (31 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 11: Reflection of Light</strong> (0 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 12: Study of Sound</strong> (42 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 13: Carbon: An Important Element</strong> (39 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 14: Substances in Common Use</strong> (35 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 15: Life Processes in Living Organisms</strong> (41 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 16: Heredity and Variation</strong> (40 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 17: Biotechnology</strong> (40 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 18: Observing Space: Telescopes</strong> (37 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div></div><div class="directory-subject-card">
+                <h4>
+                    <span>📚 History</span>
+                    <span class="stats">(332 total questions)</span>
+                </h4><div class="chapter-list-item">
+                        <span>📖 <strong>Chapter 1: Sources of History</strong> (24 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 2: India Events After 1960</strong> (10 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 3: India's Internal Challenges</strong> (51 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 4: Economic Development</strong> (61 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 5: Education</strong> (44 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 6: Empowerment of Women and Other Weaker Sections</strong> (30 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 7: Science and Technology</strong> (24 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 8: Industry and Trade</strong> (31 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 9: Changing Life: 1</strong> (35 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 10: Changing Life: 2</strong> (22 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div></div><div class="directory-subject-card">
+                <h4>
+                    <span>📚 Political Science</span>
+                    <span class="stats">(129 total questions)</span>
+                </h4><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 1: Post World War Political Developments</strong> (22 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 2: India's Foreign Policy</strong> (21 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 3: India's Defence System</strong> (21 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 4: The United Nations</strong> (23 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 5: India and Other Countries</strong> (21 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div><div class="chapter-list-item">
+                        <span>📖 <strong>Lesson 6: International Problems</strong> (21 q)</span>
+                        <div><span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span></div>
+                    </div></div></div>
+
+        <div class="stats-grid" style="margin-top: 24px;">
+            <div class="stat-card">
+                <h3 id="statDueToday">184</h3>
+                <p>Due Today</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="statTotalCards">247</h3>
+                <p>Total Database</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="statMastery">0%</h3>
+                <p>Mastery Rate</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="statStreak">🔥 1</h3>
+                <p>Study Streak</p>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button onclick="showScreen('creator')">➕ Add / Bulk Import</button>
+            <button class="btn-secondary" onclick="showScreen('manageScreen')">⚙️ Manage Curriculum</button>
+            <button class="btn-secondary" onclick="showScreen('progressScreen')">📊 Chapter Progress</button>
+            <button class="btn-secondary" onclick="showScreen('codeScreen')">💻 View Code</button>
+        </div>
+
+        <!-- Manual Backup / Restore & System Reset Actions Group -->
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed var(--border);">
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-weight: bold;">BACKUP, RESTORE &amp; RESET CONTROLS</p>
+            <div class="btn-row">
+                <button onclick="exportDataJSON()" style="background-color: var(--success);">💾 Take Instant Backup</button>
+                <button class="btn-secondary" onclick="triggerImportJSON()">📂 Upload / Restore from Backup</button>
+                <input type="file" id="mainImportFile" class="hidden" accept=".json" onchange="importDataJSON(event)">
+            </div>
+            <div class="btn-row" style="margin-top: 10px;">
+                <button class="action-btn" onclick="resetCardsToBox1()" style="border-color: var(--warning); color: var(--warning);">🔄 Reset All Cards to Box 1</button>
+                <button class="action-btn" onclick="deleteAllQuestions()" style="border-color: var(--danger); color: var(--danger);">🗑️ Delete All Questions</button>
+                <button class="btn-reset" onclick="resetEntireSystem()">⚠️ Factory Reset Entire System</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Options Modal -->
+    <div id="reviewFilterModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>🚀 Launch Review Session</h2>
+            <p style="text-align: center; margin-bottom: 20px;" class="stats">Choose which subject or chapter you'd like to focus on for this session.</p>
+            
+            <label for="reviewSubjectSelect">Select Subject:</label>
+            <select id="reviewSubjectSelect" onchange="updateReviewChapterDropdown()"><option value="ALL">📚 All Subjects (184 cards)</option><option value="Geography">📚 Geography (57 cards)</option><option value="Science">📚 Science (127 cards)</option></select>
+
+            <label for="reviewChapterSelect">Select Chapter:</label>
+            <select id="reviewChapterSelect"><option value="ALL">📖 All Chapters (57 cards)</option><option value="CHAPTER 6: THE PROPERTIES OF SEA WATER">📖 CHAPTER 6: THE PROPERTIES OF SEA WATER (57 cards)</option></select>
+
+            <div class="btn-row" style="margin-top: 20px;">
+                <button onclick="confirmAndStartReview()">▶️ Start Session</button>
+                <button class="btn-secondary" onclick="closeReviewFilterModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Chapter Selector Screen -->
+    <div id="selectorScreen" class="card-container hidden">
+        <h2>🎯 Custom Daily Chapter Selector</h2>
+        <p style="text-align: center;" class="stats">Select which specific chapters map to the active exam section (<span id="selectorSectionTitle">Unit Test 1</span>).</p>
+        
+        <div class="selector-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="margin: 0; font-size: 1.05rem; color: var(--primary);">Assign Chapters for <span id="selectorSectionSubTitle">Unit Test 1</span>:</label>
+                <div>
+                    <button class="action-btn" onclick="toggleAllChapters(true)">Select All</button>
+                    <button class="action-btn" onclick="toggleAllChapters(false)">Deselect All</button>
+                </div>
+            </div>
+            <div class="checkbox-grid" id="chapterSelectorCheckboxes"><label class="checkbox-card" for="chk_Geography_CHAPTER_1:_DISTRIBUTIONAL_MAPS">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_1:_DISTRIBUTIONAL_MAPS" name="customChapter" value="Geography___CHAPTER 1: DISTRIBUTIONAL MAPS" checked="">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 1: DISTRIBUTIONAL MAPS (28 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_2:_ENDOGENETIC_MOVEMENTS">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_2:_ENDOGENETIC_MOVEMENTS" name="customChapter" value="Geography___CHAPTER 2: ENDOGENETIC MOVEMENTS" checked="">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 2: ENDOGENETIC MOVEMENTS (35 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_3:_EXOGENETIC_PROCESSES_PART_-_1">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_3:_EXOGENETIC_PROCESSES_PART_-_1" name="customChapter" value="Geography___CHAPTER 3: EXOGENETIC PROCESSES PART - 1">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 3: EXOGENETIC PROCESSES PART - 1 (26 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_4:_EXOGENETIC_PROCESSES_PART_-_II">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_4:_EXOGENETIC_PROCESSES_PART_-_II" name="customChapter" value="Geography___CHAPTER 4: EXOGENETIC PROCESSES PART - II">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 4: EXOGENETIC PROCESSES PART - II (28 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_5:_PRECIPITATION">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_5:_PRECIPITATION" name="customChapter" value="Geography___CHAPTER 5: PRECIPITATION">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 5: PRECIPITATION (45 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_6:_THE_PROPERTIES_OF_SEA_WATER">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_6:_THE_PROPERTIES_OF_SEA_WATER" name="customChapter" value="Geography___CHAPTER 6: THE PROPERTIES OF SEA WATER" checked="">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 6: THE PROPERTIES OF SEA WATER (57 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_7:_INTERNATIONAL_DATE_LINE">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_7:_INTERNATIONAL_DATE_LINE" name="customChapter" value="Geography___CHAPTER 7: INTERNATIONAL DATE LINE">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 7: INTERNATIONAL DATE LINE (29 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_8:_INTRODUCTION_TO_ECONOMICS">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_8:_INTRODUCTION_TO_ECONOMICS" name="customChapter" value="Geography___CHAPTER 8: INTRODUCTION TO ECONOMICS">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 8: INTRODUCTION TO ECONOMICS (24 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_9:_TRADE">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_9:_TRADE" name="customChapter" value="Geography___CHAPTER 9: TRADE">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 9: TRADE (41 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_10:_URBANISATION">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_10:_URBANISATION" name="customChapter" value="Geography___CHAPTER 10: URBANISATION">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 10: URBANISATION (36 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_11:_TRANSPORT_AND_COMMUNICATION">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_11:_TRANSPORT_AND_COMMUNICATION" name="customChapter" value="Geography___CHAPTER 11: TRANSPORT AND COMMUNICATION">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 11: TRANSPORT AND COMMUNICATION (69 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Geography_CHAPTER_12:_TOURISM">
+                    <input type="checkbox" id="chk_Geography_CHAPTER_12:_TOURISM" name="customChapter" value="Geography___CHAPTER 12: TOURISM">
+                    <div>
+                        <strong>Geography</strong><br>
+                        <span class="stats">📖 CHAPTER 12: TOURISM (40 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_1:_LAWS_OF_MOTION">
+                    <input type="checkbox" id="chk_Science_CHAPTER_1:_LAWS_OF_MOTION" name="customChapter" value="Science___CHAPTER 1: LAWS OF MOTION" checked="">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 1: LAWS OF MOTION (127 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_2:_WORK_AND_ENERGY">
+                    <input type="checkbox" id="chk_Science_CHAPTER_2:_WORK_AND_ENERGY" name="customChapter" value="Science___CHAPTER 2: WORK AND ENERGY">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 2: WORK AND ENERGY (94 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_3:_CURRENT_ELECTRICITY">
+                    <input type="checkbox" id="chk_Science_CHAPTER_3:_CURRENT_ELECTRICITY" name="customChapter" value="Science___CHAPTER 3: CURRENT ELECTRICITY">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 3: CURRENT ELECTRICITY (90 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_4:_MEASUREMENT_OF_MATTER">
+                    <input type="checkbox" id="chk_Science_CHAPTER_4:_MEASUREMENT_OF_MATTER" name="customChapter" value="Science___CHAPTER 4: MEASUREMENT OF MATTER">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 4: MEASUREMENT OF MATTER (131 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_5:_ACIDS,_BASES_AND_SALTS">
+                    <input type="checkbox" id="chk_Science_CHAPTER_5:_ACIDS,_BASES_AND_SALTS" name="customChapter" value="Science___CHAPTER 5: ACIDS, BASES AND SALTS">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 5: ACIDS, BASES AND SALTS (56 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_6:_CLASSIFICATION_OF_PLANTS">
+                    <input type="checkbox" id="chk_Science_CHAPTER_6:_CLASSIFICATION_OF_PLANTS" name="customChapter" value="Science___CHAPTER 6: CLASSIFICATION OF PLANTS">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 6: CLASSIFICATION OF PLANTS (23 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_7:_ENERGY_FLOW_IN_AN_ECOSYSTEM">
+                    <input type="checkbox" id="chk_Science_CHAPTER_7:_ENERGY_FLOW_IN_AN_ECOSYSTEM" name="customChapter" value="Science___CHAPTER 7: ENERGY FLOW IN AN ECOSYSTEM">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 7: ENERGY FLOW IN AN ECOSYSTEM (34 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_CHAPTER_8:_USEFUL_AND_HARMFUL_MICROBES">
+                    <input type="checkbox" id="chk_Science_CHAPTER_8:_USEFUL_AND_HARMFUL_MICROBES" name="customChapter" value="Science___CHAPTER 8: USEFUL AND HARMFUL MICROBES">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 CHAPTER 8: USEFUL AND HARMFUL MICROBES (39 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_9:_Environmental_Management">
+                    <input type="checkbox" id="chk_Science_Lesson_9:_Environmental_Management" name="customChapter" value="Science___Lesson 9: Environmental Management">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 9: Environmental Management (34 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_10:_Information_Communication_Technology_(ICT)">
+                    <input type="checkbox" id="chk_Science_Lesson_10:_Information_Communication_Technology_(ICT)" name="customChapter" value="Science___Lesson 10: Information Communication Technology (ICT)">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 10: Information Communication Technology (ICT) (31 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_11:_Reflection_of_Light">
+                    <input type="checkbox" id="chk_Science_Lesson_11:_Reflection_of_Light" name="customChapter" value="Science___Lesson 11: Reflection of Light">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 11: Reflection of Light (0 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_12:_Study_of_Sound">
+                    <input type="checkbox" id="chk_Science_Lesson_12:_Study_of_Sound" name="customChapter" value="Science___Lesson 12: Study of Sound">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 12: Study of Sound (42 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_13:_Carbon:_An_Important_Element">
+                    <input type="checkbox" id="chk_Science_Lesson_13:_Carbon:_An_Important_Element" name="customChapter" value="Science___Lesson 13: Carbon: An Important Element">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 13: Carbon: An Important Element (39 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_14:_Substances_in_Common_Use">
+                    <input type="checkbox" id="chk_Science_Lesson_14:_Substances_in_Common_Use" name="customChapter" value="Science___Lesson 14: Substances in Common Use">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 14: Substances in Common Use (35 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_15:_Life_Processes_in_Living_Organisms">
+                    <input type="checkbox" id="chk_Science_Lesson_15:_Life_Processes_in_Living_Organisms" name="customChapter" value="Science___Lesson 15: Life Processes in Living Organisms">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 15: Life Processes in Living Organisms (41 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_16:_Heredity_and_Variation">
+                    <input type="checkbox" id="chk_Science_Lesson_16:_Heredity_and_Variation" name="customChapter" value="Science___Lesson 16: Heredity and Variation">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 16: Heredity and Variation (40 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_17:_Biotechnology">
+                    <input type="checkbox" id="chk_Science_Lesson_17:_Biotechnology" name="customChapter" value="Science___Lesson 17: Biotechnology">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 17: Biotechnology (40 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Science_Lesson_18:_Observing_Space:_Telescopes">
+                    <input type="checkbox" id="chk_Science_Lesson_18:_Observing_Space:_Telescopes" name="customChapter" value="Science___Lesson 18: Observing Space: Telescopes">
+                    <div>
+                        <strong>Science</strong><br>
+                        <span class="stats">📖 Lesson 18: Observing Space: Telescopes (37 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Chapter_1:_Sources_of_History">
+                    <input type="checkbox" id="chk_History_Chapter_1:_Sources_of_History" name="customChapter" value="History___Chapter 1: Sources of History">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Chapter 1: Sources of History (24 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_2:_India_Events_After_1960">
+                    <input type="checkbox" id="chk_History_Lesson_2:_India_Events_After_1960" name="customChapter" value="History___Lesson 2: India Events After 1960">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 2: India Events After 1960 (10 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_3:_India's_Internal_Challenges">
+                    <input type="checkbox" id="chk_History_Lesson_3:_India's_Internal_Challenges" name="customChapter" value="History___Lesson 3: India's Internal Challenges">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 3: India's Internal Challenges (51 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_4:_Economic_Development">
+                    <input type="checkbox" id="chk_History_Lesson_4:_Economic_Development" name="customChapter" value="History___Lesson 4: Economic Development">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 4: Economic Development (61 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_5:_Education">
+                    <input type="checkbox" id="chk_History_Lesson_5:_Education" name="customChapter" value="History___Lesson 5: Education">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 5: Education (44 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_6:_Empowerment_of_Women_and_Other_Weaker_Sections">
+                    <input type="checkbox" id="chk_History_Lesson_6:_Empowerment_of_Women_and_Other_Weaker_Sections" name="customChapter" value="History___Lesson 6: Empowerment of Women and Other Weaker Sections">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 6: Empowerment of Women and Other Weaker Sections (30 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_7:_Science_and_Technology">
+                    <input type="checkbox" id="chk_History_Lesson_7:_Science_and_Technology" name="customChapter" value="History___Lesson 7: Science and Technology">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 7: Science and Technology (24 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_8:_Industry_and_Trade">
+                    <input type="checkbox" id="chk_History_Lesson_8:_Industry_and_Trade" name="customChapter" value="History___Lesson 8: Industry and Trade">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 8: Industry and Trade (31 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_9:_Changing_Life:_1">
+                    <input type="checkbox" id="chk_History_Lesson_9:_Changing_Life:_1" name="customChapter" value="History___Lesson 9: Changing Life: 1">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 9: Changing Life: 1 (35 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_History_Lesson_10:_Changing_Life:_2">
+                    <input type="checkbox" id="chk_History_Lesson_10:_Changing_Life:_2" name="customChapter" value="History___Lesson 10: Changing Life: 2">
+                    <div>
+                        <strong>History</strong><br>
+                        <span class="stats">📖 Lesson 10: Changing Life: 2 (22 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Political_Science_Lesson_1:_Post_World_War_Political_Developments">
+                    <input type="checkbox" id="chk_Political_Science_Lesson_1:_Post_World_War_Political_Developments" name="customChapter" value="Political Science___Lesson 1: Post World War Political Developments">
+                    <div>
+                        <strong>Political Science</strong><br>
+                        <span class="stats">📖 Lesson 1: Post World War Political Developments (22 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Political_Science_Lesson_2:_India's_Foreign_Policy">
+                    <input type="checkbox" id="chk_Political_Science_Lesson_2:_India's_Foreign_Policy" name="customChapter" value="Political Science___Lesson 2: India's Foreign Policy">
+                    <div>
+                        <strong>Political Science</strong><br>
+                        <span class="stats">📖 Lesson 2: India's Foreign Policy (21 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Political_Science_Lesson_3:_India's_Defence_System">
+                    <input type="checkbox" id="chk_Political_Science_Lesson_3:_India's_Defence_System" name="customChapter" value="Political Science___Lesson 3: India's Defence System">
+                    <div>
+                        <strong>Political Science</strong><br>
+                        <span class="stats">📖 Lesson 3: India's Defence System (21 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Political_Science_Lesson_4:_The_United_Nations">
+                    <input type="checkbox" id="chk_Political_Science_Lesson_4:_The_United_Nations" name="customChapter" value="Political Science___Lesson 4: The United Nations">
+                    <div>
+                        <strong>Political Science</strong><br>
+                        <span class="stats">📖 Lesson 4: The United Nations (23 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Political_Science_Lesson_5:_India_and_Other_Countries">
+                    <input type="checkbox" id="chk_Political_Science_Lesson_5:_India_and_Other_Countries" name="customChapter" value="Political Science___Lesson 5: India and Other Countries">
+                    <div>
+                        <strong>Political Science</strong><br>
+                        <span class="stats">📖 Lesson 5: India and Other Countries (21 q)</span>
+                    </div>
+                </label><label class="checkbox-card" for="chk_Political_Science_Lesson_6:_International_Problems">
+                    <input type="checkbox" id="chk_Political_Science_Lesson_6:_International_Problems" name="customChapter" value="Political Science___Lesson 6: International Problems">
+                    <div>
+                        <strong>Political Science</strong><br>
+                        <span class="stats">📖 Lesson 6: International Problems (21 q)</span>
+                    </div>
+                </label></div>
+        </div>
+
+        <div class="btn-row">
+            <button onclick="saveExamSectionChapters()" style="font-size: 1.05rem; padding: 12px 28px;">💾 Save Chapter Mappings &amp; Return</button>
+            <button class="btn-secondary" onclick="showScreen('dashboard')">🏠 Back to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Study Session Screen -->
+    <div id="studyScreen" class="card-container hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span id="studyBadge" class="badge">Session Complete</span>
+            <span id="cardCounterTracker" class="stats"></span>
+        </div>
+        
+        <div class="flashcard-box" id="cardDisplay">
+            <!-- Edit Button on Card -->
+            <button class="action-btn" onclick="editCurrentCardInSession()" style="position: absolute; top: 15px; right: 15px; border-color: var(--primary); color: var(--primary); display: none;">✏️ Edit Question</button>
+            
+            <div class="question-formatted-wrapper">
+                <span class="question-title-tag">Question:</span>
+                <div class="question-body-text" id="cardContent"><span class="sentence-line">🎉 <strong>Session Complete for Unit Test 1!</strong></span><span class="sentence-line">Great job completing your scheduled reviews for today.</span></div>
+            </div>
+        </div>
+        
+        <div id="studyControls" class="btn-row" style="display: none;">
+            <button class="btn-again" onclick="processReview(1)">❌ Got it Wrong <br><span style="font-size: 0.75rem; font-weight: normal;">(Back to Box 1)</span></button>
+            <button class="btn-good" onclick="processReview(2)">✔️ Got it Right <br><span style="font-size: 0.75rem; font-weight: normal;" id="nextIntervalLabel">(Box 2: +3 Days)</span></button>
+        </div>
+        
+        <div class="btn-row" style="margin-top: 15px; justify-content: space-between; align-items: center;">
+            <button class="action-btn" onclick="addQuestionInSessionPrompt()" style="border-color: var(--primary); color: var(--primary); padding: 8px 16px;">➕ Add Question to Chapter</button>
+            <button class="btn-secondary" onclick="showScreen('dashboard')">🏠 End Session &amp; Save Progress</button>
+            <button class="action-btn" onclick="deleteCurrentCardInSession()" style="border-color: var(--danger); color: var(--danger); padding: 8px 16px;">🗑️ Delete This Question</button>
+        </div>
+    </div>
+
+    <!-- Progress Tracker Screen -->
+    <div id="progressScreen" class="card-container hidden">
+        <h2>📊 Chapter-Wise Mastery Tracker</h2>
+        <p style="text-align: center;" class="stats">Automatic progression metrics across active modules for <span id="progressSectionLabel">Unit Test 1</span>.</p>
+        <div id="progressContent"></div>
+        <div class="btn-row" style="margin-top: 25px;">
+            <button class="btn-secondary" onclick="showScreen('dashboard')">🏠 Back to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Curriculum Manager Screen -->
+    <div id="manageScreen" class="card-container hidden">
+        <h2>⚙️ Professional Curriculum Manager</h2>
+        <p style="text-align: center;" class="stats">Organize, rename, amend, or delete subjects, chapters, and questions with professional controls.</p>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="modalAddSubject()">📚 + Add Subject</button>
+            <button onclick="modalAddChapter()">📖 + Add Chapter</button>
+            <button onclick="exportDataJSON()" style="background-color: var(--success);">💾 Take Instant Backup</button>
+            <button class="btn-secondary" onclick="triggerImportJSON()">📂 Upload Backup</button>
+            <input type="file" id="importFile" class="hidden" accept=".json" onchange="importDataJSON(event)">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label>Filter by Subject:</label>
+                <select id="manageSubjectFilter" onchange="renderManageHierarchy()"><option value="All">📚 All Subjects</option></select>
+            </div>
+        </div>
+
+        <div id="manageHierarchyContainer"></div>
+
+        <div class="btn-row" style="margin-top: 25px;">
+            <button class="btn-secondary" onclick="showScreen('dashboard')">🏠 Back to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Content Creator & Bulk Upload Screen -->
+    <div id="creator" class="card-container hidden">
+        <h2>Content Creator &amp; Bulk Import Studio</h2>
+        
+        <div class="tab-row">
+            <button class="tab-btn" id="tabSingleBtn" onclick="switchCreatorTab('single')">Single Question</button>
+            <button class="tab-btn active" id="tabBulkBtn" onclick="switchCreatorTab('bulk')">Advanced Bulk Paste</button>
+        </div>
+
+        <div id="singleForm" class="hidden">
+            <label>Subject Name:</label>
+            <select id="singleSubjectSelect" onchange="updateChapterDropdownsForCreator('single')"></select>
+
+            <label>Chapter Name:</label>
+            <select id="singleChapterSelect"></select>
+
+            <label>Question Prompt (No Answer Required):</label>
+            <textarea id="singleQuestion" rows="4" placeholder="Enter flashcard question..."></textarea>
+            
+            <div class="btn-row">
+                <button onclick="addSingleCard()">Save Question</button>
+                <button class="btn-secondary" onclick="showScreen('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+
+        <div id="bulkForm" class="">
+            <label>Subject Name:</label>
+            <select id="bulkSubjectSelect" onchange="updateChapterDropdownsForCreator('bulk')"></select>
+
+            <label>Chapter Name:</label>
+            <select id="bulkChapterSelect"></select>
+
+            <label>Bulk Questions (Paste multiple lines - one question per line):</label>
+            <textarea id="bulkQuestionsText" rows="8" placeholder="What is the powerhouse of the cell?
+What is the chemical symbol for water?
+Who wrote Hamlet?"></textarea>
+            <span class="stats">Every individual line will automatically be parsed and imported into Box 1 under the selected chapter.</span>
+            
+            <div class="btn-row" style="margin-top: 15px;">
+                <button onclick="addBulkCards()">Import All Bulk Questions</button>
+                <button class="btn-secondary" onclick="showScreen('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Viewer Screen -->
+    <div id="codeScreen" class="card-container">
+        <h2>💻 Source Code Viewer</h2>
+        <p style="text-align: center;" class="stats">This tab displays the live, complete HTML code for your application. You can copy it anytime!</p>
+        
+        <div class="btn-row" style="margin-bottom: 15px;">
+            <button onclick="copySourceCode()">📋 Copy Complete Source Code</button>
+        </div>
+
+        <textarea id="sourceCodeBox" rows="15" readonly="" style="font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #f8fafc; padding: 15px; border-radius: 8px;"></textarea>
+
+        <div class="btn-row" style="margin-top: 25px;">
+            <button class="btn-secondary" onclick="showScreen('dashboard')">🏠 Back to Dashboard</button>
+        </div>
+    </div>
+
+<script>
+    const LEITNER_INTERVALS = [1, 3, 7, 16, 30];
+    const BOX_RULES_DESC = [
+        "Box 1: Every Day",
+        "Box 2: Tue & Thu",
+        "Box 3: Fridays",
+        "Box 4: Fortnightly (1st & 15th)",
+        "Box 5: Monthly Review"
+    ];
+
+    let activeExamSection = "Unit Test 1";
+
+    let examSectionsMapping = JSON.parse(localStorage.getItem('anki_leitner_exam_sections_v8')) || {
+        "Unit Test 1": [],
+        "Semester 1": [],
+        "Unit Test 2": [],
+        "Semester 2": []
+    };
+
+    let subjectsData = JSON.parse(localStorage.getItem('anki_leitner_subjects_v8')) || [
+        { name: "Science", chapters: ["Cell Biology", "Physics Basics"] },
+        { name: "History", chapters: ["World War II"] }
+    ];
+
+    let cards = JSON.parse(localStorage.getItem('anki_leitner_cards_v8')) || [
+        { id: 1, subject: "Science", chapter: "Cell Biology", q: "State whether the following statements are True or Wrong: In choropleth maps, only one value is assigned to the sub-administrative unit.", box: 1, nextReviewDate: getTodayDateString(), lastCompletedDate: "" },
+        { id: 2, subject: "Science", chapter: "Cell Biology", q: "Give reasons why the following sentences are right or wrong. The line connecting places of equal values of a particular variable on a map is called an 'isoline'.", box: 2, nextReviewDate: getTodayDateString(), lastCompletedDate: "" }
+    ];
+
+    let streak = JSON.parse(localStorage.getItem('anki_leitner_streak_v8')) || { count: 0, lastDate: "" };
+
+    let activeQueue = [];
+    let currentCardIndex = 0;
+
+    function getTodayDateString() {
+        const d = new Date();
+        return d.toISOString().split('T')[0];
+    }
+
+    function addDaysToDate(dateStr, days) {
+        let d = new Date(dateStr);
+        if(isNaN(d)) d = new Date();
+        d.setDate(d.getDate() + days);
+        return d.toISOString().split('T')[0];
+    }
+
+    function exportDataJSON() {
+        const exportObj = { subjects: subjectsData, cards: cards, examSections: examSectionsMapping, streak: streak };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `leitner_backup_${getTodayDateString()}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        alert("Backup file downloaded successfully!");
+    }
+
+    function autoExportDataJSON() {
+        const exportObj = { subjects: subjectsData, cards: cards, examSections: examSectionsMapping, streak: streak };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `leitner_automatic_backup_${getTodayDateString()}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function triggerImportJSON() {
+        document.getElementById('mainImportFile').click();
+    }
+
+    function importDataJSON(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const parsed = JSON.parse(e.target.result);
+                if(parsed.subjects && parsed.cards) {
+                    subjectsData = parsed.subjects;
+                    cards = parsed.cards;
+                    if(parsed.examSections) examSectionsMapping = parsed.examSections;
+                    if(parsed.streak) streak = parsed.streak;
+                    saveData();
+                    alert("Questions and curriculum database successfully restored from backup!");
+                    showScreen('dashboard');
+                } else {
+                    alert("Invalid JSON backup structure.");
+                }
+            } catch(err) {
+                alert("Error parsing JSON file.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function saveData() {
+        localStorage.setItem('anki_leitner_subjects_v8', JSON.stringify(subjectsData));
+        localStorage.setItem('anki_leitner_cards_v8', JSON.stringify(cards));
+        localStorage.setItem('anki_leitner_streak_v8', JSON.stringify(streak));
+        localStorage.setItem('anki_leitner_exam_sections_v8', JSON.stringify(examSectionsMapping));
+    }
+
+    function switchActiveExamSection(sectionName) {
+        activeExamSection = sectionName;
+        document.querySelectorAll('.exam-tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        updateDashboardMetrics();
+    }
+
+    function getActiveSectionChapters() {
+        return examSectionsMapping[activeExamSection] || [];
+    }
+
+    function resetCardsToBox1() {
+        if(!confirm(`🔄 Are you sure you want to reset ALL cards belonging to chapters in "${activeExamSection}" back to Box 1?`)) return;
+        const activeChaps = getActiveSectionChapters();
+        const todayStr = getTodayDateString();
+        
+        cards.forEach(c => {
+            if (activeChaps.includes(`${c.subject}___${c.chapter}`)) {
+                c.box = 1;
+                c.nextReviewDate = todayStr;
+                c.lastCompletedDate = "";
+            }
+        });
+        saveData();
+        alert(`Cards for "${activeExamSection}" have been reset to Box 1 successfully!`);
+        updateDashboardMetrics();
+    }
+
+    function deleteAllQuestions() {
+        if(!confirm(`🗑️ WARNING: This will delete ALL questions belonging to chapters in "${activeExamSection}". Proceed?`)) return;
+        const activeChaps = getActiveSectionChapters();
+        cards = cards.filter(c => !activeChaps.includes(`${c.subject}___${c.chapter}`));
+        saveData();
+        alert(`Questions for "${activeExamSection}" have been deleted.`);
+        updateDashboardMetrics();
+    }
+
+    function resetEntireSystem() {
+        if(!confirm("⚠️ WARNING: This will factory reset EVERYTHING (subjects, chapters, exam section mappings, questions, and streaks). Are you absolutely sure?")) return;
+        localStorage.removeItem('anki_leitner_subjects_v8');
+        localStorage.removeItem('anki_leitner_cards_v8');
+        localStorage.removeItem('anki_leitner_streak_v8');
+        localStorage.removeItem('anki_leitner_exam_sections_v8');
+        subjectsData = [];
+        cards = [];
+        examSectionsMapping = { "Unit Test 1": [], "Semester 1": [], "Unit Test 2": [], "Semester 2": [] };
+        streak = { count: 0, lastDate: "" };
+        alert("System has been completely reset.");
+        showScreen('dashboard');
+    }
+
+    function showScreen(screenId) {
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('selectorScreen').classList.add('hidden');
+        document.getElementById('studyScreen').classList.add('hidden');
+        document.getElementById('creator').classList.add('hidden');
+        document.getElementById('progressScreen').classList.add('hidden');
+        document.getElementById('manageScreen').classList.add('hidden');
+        document.getElementById('codeScreen').classList.add('hidden');
+        document.getElementById(screenId).classList.remove('hidden');
+        
+        if(screenId === 'dashboard') {
+            updateDashboardMetrics();
+        }
+        if(screenId === 'selectorScreen') {
+            document.getElementById('selectorSectionTitle').innerText = activeExamSection;
+            document.getElementById('selectorSectionSubTitle').innerText = activeExamSection;
+            renderChapterSelectorCheckboxes();
+        }
+        if(screenId === 'creator') {
+            populateDropdowns('single');
+            populateDropdowns('bulk');
+            switchCreatorTab('single');
+        }
+        if(screenId === 'progressScreen') {
+            document.getElementById('progressSectionLabel').innerText = activeExamSection;
+            renderProgressScreen();
+        }
+        if(screenId === 'manageScreen') {
+            populateManageFilters();
+            renderManageHierarchy();
+        }
+        if(screenId === 'codeScreen') {
+            document.getElementById('sourceCodeBox').value = document.documentElement.outerHTML;
+        }
+    }
+
+    function copySourceCode() {
+        const box = document.getElementById('sourceCodeBox');
+        box.select();
+        document.execCommand('copy');
+        alert("Source code copied to clipboard successfully!");
+    }
+
+    function switchCreatorTab(tabName) {
+        if(tabName === 'single') {
+            document.getElementById('singleForm').classList.remove('hidden');
+            document.getElementById('bulkForm').classList.add('hidden');
+            document.getElementById('tabSingleBtn').classList.add('active');
+            document.getElementById('tabBulkBtn').classList.remove('active');
+        } else {
+            document.getElementById('singleForm').classList.add('hidden');
+            document.getElementById('bulkForm').classList.remove('hidden');
+            document.getElementById('tabSingleBtn').classList.remove('active');
+            document.getElementById('tabBulkBtn').classList.add('active');
+        }
+    }
+
+    function modalAddSubject() {
+        const name = prompt("Enter new Subject name:");
+        if(!name || !name.trim()) return;
+        const formatted = name.trim();
+        if(subjectsData.some(s => s.name.toLowerCase() === formatted.toLowerCase())) {
+            alert("Subject already exists!");
+            return;
+        }
+        subjectsData.push({ name: formatted, chapters: [] });
+        saveData();
+        alert(`Subject "${formatted}" added successfully!`);
+        updateDashboardMetrics();
+        if(!document.getElementById('manageScreen').classList.contains('hidden')) {
+            populateManageFilters();
+            renderManageHierarchy();
+        }
+    }
+
+    function modalAddChapter() {
+        if(subjectsData.length === 0) {
+            alert("Please create a subject first!");
+            modalAddSubject();
+            return;
+        }
+        const subList = subjectsData.map((s, idx) => `${idx + 1}. ${s.name}`).join('\n');
+        const choice = prompt(`Select Subject number to add a chapter to:\n${subList}`);
+        if(!choice) return;
+        const index = parseInt(choice) - 1;
+        if(isNaN(index) || !subjectsData[index]) {
+            alert("Invalid selection.");
+            return;
+        }
+        const chapName = prompt(`Enter Chapter name for "${subjectsData[index].name}":`);
+        if(!chapName || !chapName.trim()) return;
+        const formattedChap = chapName.trim();
+        if(subjectsData[index].chapters.some(c => c.toLowerCase() === formattedChap.toLowerCase())) {
+            alert("Chapter already exists under this subject!");
+            return;
+        }
+        subjectsData[index].chapters.push(formattedChap);
+        saveData();
+        alert(`Chapter "${formattedChap}" added successfully!`);
+        updateDashboardMetrics();
+        if(!document.getElementById('manageScreen').classList.contains('hidden')) {
+            renderManageHierarchy();
+        }
+    }
+
+    function renameSubject(oldName) {
+        const newName = prompt(`Rename subject "${oldName}" to:`, oldName);
+        if(!newName || !newName.trim() || newName.trim() === oldName) return;
+        const formatted = newName.trim();
+
+        if(subjectsData.some(s => s.name.toLowerCase() === formatted.toLowerCase())) {
+            alert("A subject with this name already exists.");
+            return;
+        }
+
+        const subObj = subjectsData.find(s => s.name === oldName);
+        if(subObj) subObj.name = formatted;
+
+        cards.forEach(c => {
+            if(c.subject === oldName) c.subject = formatted;
+        });
+
+        for(let sec in examSectionsMapping) {
+            examSectionsMapping[sec] = examSectionsMapping[sec].map(item => {
+                let parts = item.split("___");
+                if(parts[0] === oldName) return `${formatted}___${parts[1]}`;
+                return item;
+            });
+        }
+
+        saveData();
+        alert("Subject renamed successfully!");
+        updateDashboardMetrics();
+        populateManageFilters();
+        renderManageHierarchy();
+    }
+
+    function deleteSubject(subName) {
+        if(!confirm(`Are you sure you want to delete subject "${subName}" and ALL its chapters & questions?`)) return;
+        subjectsData = subjectsData.filter(s => s.name !== subName);
+        cards = cards.filter(c => c.subject !== subName);
+        for(let sec in examSectionsMapping) {
+            examSectionsMapping[sec] = examSectionsMapping[sec].filter(item => !item.startsWith(subName + "___"));
+        }
+        saveData();
+        alert("Subject deleted successfully.");
+        updateDashboardMetrics();
+        populateManageFilters();
+        renderManageHierarchy();
+    }
+
+    function renameChapter(subName, oldChap) {
+        const newChap = prompt(`Rename chapter "${oldChap}" under "${subName}" to:`, oldChap);
+        if(!newChap || !newChap.trim() || newChap.trim() === oldChap) return;
+        const formatted = newChap.trim();
+
+        const subObj = subjectsData.find(s => s.name === subName);
+        if(subObj) {
+            if(subObj.chapters.some(c => c.toLowerCase() === formatted.toLowerCase())) {
+                alert("Chapter with this name already exists in this subject.");
+                return;
+            }
+            subObj.chapters = subObj.chapters.map(c => c === oldChap ? formatted : c);
+        }
+
+        cards.forEach(c => {
+            if(c.subject === subName && c.chapter === oldChap) c.chapter = formatted;
+        });
+
+        for(let sec in examSectionsMapping) {
+            examSectionsMapping[sec] = examSectionsMapping[sec].map(item => {
+                if(item === `${subName}___${oldChap}`) return `${subName}___${formatted}`;
+                return item;
+            });
+        }
+
+        saveData();
+        alert("Chapter renamed successfully!");
+        updateDashboardMetrics();
+        renderManageHierarchy();
+    }
+
+    function deleteChapter(subName, chapName) {
+        if(!confirm(`Are you sure you want to delete chapter "${chapName}" and all its questions?`)) return;
+        const subObj = subjectsData.find(s => s.name === subName);
+        if(subObj) {
+            subObj.chapters = subObj.chapters.filter(c => c !== chapName);
+        }
+        cards = cards.filter(c => !(c.subject === subName && c.chapter === chapName));
+        for(let sec in examSectionsMapping) {
+            examSectionsMapping[sec] = examSectionsMapping[sec].filter(item => item !== `${subName}___${chapName}`);
+        }
+        saveData();
+        alert("Chapter deleted successfully.");
+        updateDashboardMetrics();
+        renderManageHierarchy();
+    }
+
+    function amendQuestion(cardId) {
+        const card = cards.find(c => c.id === cardId);
+        if(!card) return;
+        const newQ = prompt("Amend question prompt:", card.q);
+        if(!newQ || !newQ.trim()) return;
+        card.q = newQ.trim();
+        saveData();
+        alert("Question updated successfully!");
+        renderManageHierarchy();
+    }
+
+    function editCurrentCardInSession() {
+        if(currentCardIndex >= activeQueue.length) return;
+        const currentCard = activeQueue[currentCardIndex];
+        const card = cards.find(c => c.id === currentCard.id);
+        if(!card) return;
+        const newQ = prompt("Edit current question prompt:", card.q);
+        if(!newQ || !newQ.trim()) return;
+        card.q = newQ.trim();
+        currentCard.q = card.q;
+        saveData();
+        loadCurrentCard();
+        alert("Question updated successfully!");
+    }
+
+    function deleteCard(cardId) {
+        if(!confirm("Are you sure you want to delete this question?")) return;
+        cards = cards.filter(c => c.id !== cardId);
+        saveData();
+        updateDashboardMetrics();
+        renderManageHierarchy();
+    }
+
+    function deleteCurrentCardInSession() {
+        if(currentCardIndex >= activeQueue.length) return;
+        if(!confirm("Are you sure you want to delete this question?")) return;
+        const currentCard = activeQueue[currentCardIndex];
+        cards = cards.filter(c => c.id !== currentCard.id);
+        saveData();
+        activeQueue.splice(currentCardIndex, 1);
+        loadCurrentCard();
+    }
+
+    function addQuestionInSessionPrompt() {
+        if(currentCardIndex >= activeQueue.length) return;
+        const currentCard = activeQueue[currentCardIndex];
+        const newQText = prompt(`Add a new question to subject "${currentCard.subject}", chapter "${currentCard.chapter}":`);
+        if(!newQText || !newQText.trim()) return;
+
+        cards.push({
+            id: Date.now() + Math.random(),
+            subject: currentCard.subject,
+            chapter: currentCard.chapter,
+            q: newQText.trim(),
+            box: 1,
+            nextReviewDate: getTodayDateString(),
+            lastCompletedDate: ""
+        });
+        saveData();
+        alert("New question added successfully to this chapter!");
+    }
+
+    function populateManageFilters() {
+        const select = document.getElementById('manageSubjectFilter');
+        select.innerHTML = `<option value="All">📚 All Subjects</option>` +
+            subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    }
+
+    function renderManageHierarchy() {
+        const filterSub = document.getElementById('manageSubjectFilter').value;
+        const container = document.getElementById('manageHierarchyContainer');
+
+        let filteredSubs = filterSub === 'All' ? subjectsData : subjectsData.filter(s => s.name === filterSub);
+
+        if(filteredSubs.length === 0) {
+            container.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 20px;">No subjects found.</p>`;
+            return;
+        }
+
+        let html = '';
+        filteredSubs.forEach(sub => {
+            html += `<div style="background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: var(--primary); text-align: left;">📚 Subject: ${sub.name}</h3>
+                    <div>
+                        <button class="action-btn" onclick="renameSubject('${sub.name}')">✏️ Rename Subject</button>
+                        <button class="action-btn" onclick="deleteSubject('${sub.name}')" style="color: var(--danger); border-color: var(--danger);">🗑️ Delete Subject</button>
+                    </div>
+                </div>`;
+
+            if(sub.chapters.length === 0) {
+                html += `<p class="stats" style="margin-left: 15px;">No chapters created under this subject yet.</p>`;
+            } else {
+                sub.chapters.forEach(chap => {
+                    let chapCards = cards.filter(c => c.subject === sub.name && c.chapter === chap);
+                    html += `<div style="background: #f8fafc; border-radius: 8px; padding: 15px; margin-left: 15px; margin-bottom: 12px; border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="margin: 0; color: #334155;">📖 Chapter: ${chap} <span class="stats">(${chapCards.length} questions)</span></h4>
+                            <div>
+                                <button class="action-btn" onclick="renameChapter('${sub.name}', '${chap}')">✏️ Rename Chapter</button>
+                                <button class="action-btn" onclick="deleteChapter('${sub.name}', '${chap}')" style="color: var(--danger); border-color: var(--danger);">🗑️ Delete Chapter</button>
+                            </div>
+                        </div>`;
+
+                    if(chapCards.length === 0) {
+                        html += `<p class="stats" style="margin-left: 15px; margin-bottom: 0;">No questions in this chapter.</p>`;
+                    } else {
+                        html += `<table class="progress-table" style="margin-top: 8px;">
+                            <tr>
+                                <th>Question Prompt</th>
+                                <th>Leitner Box</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>`;
+                        chapCards.forEach(c => {
+                            html += `<tr>
+                                <td>${c.q}</td>
+                                <td>Box ${c.box}</td>
+                                <td style="text-align: right;">
+                                    <button class="action-btn" onclick="amendQuestion(${c.id})">✏️ Edit</button>
+                                    <button class="action-btn" onclick="deleteCard(${c.id})" style="color: var(--danger); border-color: var(--danger);">🗑️</button>
+                                </td>
+                            </tr>`;
+                        });
+                        html += `</table>`;
+                    }
+                    html += `</div>`;
+                });
+            }
+            html += `</div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function isBoxScheduledToday(boxNum) {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const dateNum = today.getDate();
+
+        if (boxNum === 1) return true;
+        if (boxNum === 2 && (dayOfWeek === 2 || dayOfWeek === 4)) return true;
+        if (boxNum === 3 && dayOfWeek === 5) return true;
+        if (boxNum === 4 && (dateNum === 1 || dateNum === 15)) return true;
+        if (boxNum === 5 && dateNum === 1) return true;
+        return false;
+    }
+
+    function getDueCards() {
+        const todayStr = getTodayDateString();
+        const activeChaps = getActiveSectionChapters();
+        return cards.filter(c => {
+            let inActiveSection = activeChaps.includes(`${c.subject}___${c.chapter}`);
+            let scheduledToday = isBoxScheduledToday(c.box);
+            let notCompletedToday = c.lastCompletedDate !== todayStr;
+            let dateReady = (!c.nextReviewDate || c.nextReviewDate <= todayStr);
+            return inActiveSection && scheduledToday && notCompletedToday && dateReady;
+        });
+    }
+
+    function updateDashboardMetrics() {
+        document.getElementById('activeSectionLabel').innerText = activeExamSection;
+
+        ['Unit Test 1', 'Semester 1', 'Unit Test 2', 'Semester 2'].forEach(sec => {
+            let chapsCount = (examSectionsMapping[sec] || []).length;
+            let keyMap = { "Unit Test 1": "count_ut1", "Semester 1": "count_sem1", "Unit Test 2": "count_ut2", "Semester 2": "count_sem2" };
+            const el = document.getElementById(keyMap[sec]);
+            if(el) el.innerText = `${chapsCount} chapters active`;
+        });
+
+        const dueCards = getDueCards();
+        const activeChaps = getActiveSectionChapters();
+        const sectionCards = cards.filter(c => activeChaps.includes(`${c.subject}___${c.chapter}`));
+        const total = sectionCards.length;
+        const mastered = sectionCards.filter(c => c.box === 5).length;
+        const masteryRate = total > 0 ? Math.round((mastered / total) * 100) : 0;
+
+        document.getElementById('statDueToday').innerText = dueCards.length;
+        document.getElementById('statTotalCards').innerText = total;
+        document.getElementById('statMastery').innerText = masteryRate + '%';
+        document.getElementById('statStreak').innerText = `🔥 ${streak.count}`;
+
+        const summaryEl = document.getElementById('queueSummaryText');
+        const startBtn = document.getElementById('startStudyBtn');
+
+        if(activeChaps.length === 0) {
+            summaryEl.innerHTML = `No chapters assigned to <strong>${activeExamSection}</strong> yet. Click "Choose Custom Chapters" to group chapters for this exam!`;
+            startBtn.style.display = 'none';
+        } else if(total === 0) {
+            summaryEl.innerHTML = `No questions found in the assigned chapters for <strong>${activeExamSection}</strong>. Add questions via Content Creator!`;
+            startBtn.style.display = 'none';
+        } else if(dueCards.length === 0) {
+            summaryEl.innerHTML = `🎉 All scheduled box reviews for <strong>${activeExamSection}</strong> today are completed! Outstanding work.`;
+            startBtn.innerText = "All Reviews Completed For Today";
+            startBtn.style.opacity = "0.6";
+            startBtn.style.cursor = "not-allowed";
+            startBtn.disabled = true;
+            startBtn.style.display = 'inline-block';
+        } else {
+            summaryEl.innerHTML = `You have <strong>${dueCards.length}</strong> intelligent card(s) queued for review today under <strong>${activeExamSection}</strong>.`;
+            startBtn.innerText = "🚀 Launch Today's Review";
+            startBtn.style.opacity = "1";
+            startBtn.style.cursor = "pointer";
+            startBtn.disabled = false;
+            startBtn.style.display = 'inline-block';
+        }
+
+        renderBoxMatrix();
+        renderChapterLeitnerTracker();
+        renderCompleteDirectory();
+    }
+
+    function renderBoxMatrix() {
+        const grid = document.getElementById('boxMatrixGrid');
+        if(!grid) return;
+        grid.innerHTML = '';
+        const todayStr = getTodayDateString();
+        const activeChaps = getActiveSectionChapters();
+
+        for(let i = 1; i <= 5; i++) {
+            let boxCards = cards.filter(c => activeChaps.includes(`${c.subject}___${c.chapter}`) && c.box === i);
+            let totalInBox = boxCards.length;
+            let dueInBox = boxCards.filter(c => isBoxScheduledToday(i) && c.lastCompletedDate !== todayStr && (!c.nextReviewDate || c.nextReviewDate <= todayStr)).length;
+            let scheduled = isBoxScheduledToday(i);
+            let completedToday = totalInBox > 0 && dueInBox === 0 && scheduled;
+            
+            let cardClass = 'matrix-card';
+            let badgeHtml = '';
+
+            if (!scheduled) {
+                cardClass += ' not-applicable';
+                badgeHtml = `<span class="status-badge wait">Resting (Not Due Today)</span>`;
+            } else if (completedToday) {
+                cardClass += ' completed-today';
+                badgeHtml = `<span class="status-badge done">✔️ Completed Today (Locked)</span>`;
+            } else if (totalInBox === 0) {
+                cardClass += ' not-applicable';
+                badgeHtml = `<span class="status-badge wait">Empty Box</span>`;
+            } else {
+                cardClass += ' due';
+                badgeHtml = `<span class="status-badge due">🔥 ${dueInBox} Due Today</span>`;
+            }
+
+            const div = document.createElement('div');
+            div.className = cardClass;
+            div.innerHTML = `
+                <h3>Box ${i}</h3>
+                <p>${BOX_RULES_DESC[i-1]}</p>
+                <p><strong>📦 ${totalInBox}</strong> total</p>
+                ${badgeHtml}
+            `;
+            grid.appendChild(div);
+        }
+    }
+
+    function renderChapterLeitnerTracker() {
+        const container = document.getElementById('chapterLeitnerTrackerContainer');
+        const activeChaps = getActiveSectionChapters();
+        
+        if(subjectsData.length === 0 || activeChaps.length === 0) {
+            container.innerHTML = `<p class="stats" style="text-align: center;">No chapters grouped under <strong>${activeExamSection}</strong> yet.</p>`;
+            return;
+        }
+
+        let html = '';
+        subjectsData.forEach(sub => {
+            let subActiveChaps = sub.chapters.filter(chap => activeChaps.includes(`${sub.name}___${chap}`));
+            if(subActiveChaps.length === 0) return;
+
+            html += `<div class="tracker-subject-group">
+                <h3>📚 ${sub.name}</h3>`;
+
+            subActiveChaps.forEach(chap => {
+                let chapCards = cards.filter(c => c.subject === sub.name && c.chapter === chap);
+                let boxCounts = [0, 0, 0, 0, 0];
+                chapCards.forEach(c => {
+                    if(c.box >= 1 && c.box <= 5) boxCounts[c.box - 1]++;
+                });
+
+                html += `<div class="tracker-chapter-row">
+                    <span class="tracker-chapter-name">📖 ${chap} <span class="stats">(${chapCards.length} q)</span></span>
+                    <div class="leitner-box-pills-row">`;
+
+                for(let b=1; b<=5; b++) {
+                    let count = boxCounts[b-1];
+                    let hasCardsClass = count > 0 ? 'has-cards' : '';
+                    html += `<span class="lbox-pill ${hasCardsClass}">Box ${b}: <strong>${count}</strong></span>`;
+                }
+
+                html += `</div></div>`;
+            });
+            html += `</div>`;
+        });
+
+        container.innerHTML = html || `<p class="stats" style="text-align: center;">No chapters grouped under <strong>${activeExamSection}</strong> yet.</p>`;
+    }
+
+    function renderCompleteDirectory() {
+        const container = document.getElementById('completeDirectoryContainer');
+        if(subjectsData.length === 0) {
+            container.innerHTML = `<p class="stats" style="text-align: center;">No subjects available yet.</p>`;
+            return;
+        }
+
+        let html = '';
+        subjectsData.forEach(sub => {
+            let subCardsCount = cards.filter(c => c.subject === sub.name).length;
+            html += `<div class="directory-subject-card">
+                <h4>
+                    <span>📚 ${sub.name}</span>
+                    <span class="stats">(${subCardsCount} total questions)</span>
+                </h4>`;
+
+            if(sub.chapters.length === 0) {
+                html += `<p class="stats" style="margin: 0;">No chapters created under this subject yet.</p>`;
+            } else {
+                sub.chapters.forEach(chap => {
+                    let chapCardsCount = cards.filter(c => c.subject === sub.name && c.chapter === chap).length;
+                    let assignedSections = [];
+                    for(let sec in examSectionsMapping) {
+                        if((examSectionsMapping[sec] || []).includes(`${sub.name}___${chap}`)) assignedSections.push(sec);
+                    }
+                    let assignedBadge = assignedSections.length > 0 ? `<span class="badge" style="background:#dcfce7; color:#166534;">Assigned: ${assignedSections.join(', ')}</span>` : `<span class="badge" style="background:#fee2e2; color:#991b1b;">Not Assigned</span>`;
+
+                    html += `<div class="chapter-list-item">
+                        <span>📖 <strong>${chap}</strong> (${chapCardsCount} q)</span>
+                        <div>${assignedBadge}</div>
+                    </div>`;
+                });
+            }
+            html += `</div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function renderChapterSelectorCheckboxes() {
+        const container = document.getElementById('chapterSelectorCheckboxes');
+        if(subjectsData.length === 0) {
+            container.innerHTML = `<p class="stats">No subjects or chapters found in the system. Create them via Curriculum Manager first.</p>`;
+            return;
+        }
+
+        let assignedList = examSectionsMapping[activeExamSection] || [];
+        let html = '';
+        subjectsData.forEach(sub => {
+            sub.chapters.forEach(chap => {
+                let chapCardCount = cards.filter(c => c.subject === sub.name && c.chapter === chap).length;
+                let checkboxId = `chk_${sub.name}_${chap}`.replace(/\s+/g, '_');
+                let isChecked = assignedList.includes(`${sub.name}___${chap}`) ? 'checked' : '';
+                html += `<label class="checkbox-card" for="${checkboxId}">
+                    <input type="checkbox" id="${checkboxId}" name="customChapter" value="${sub.name}___${chap}" ${isChecked}>
+                    <div>
+                        <strong>${sub.name}</strong><br>
+                        <span class="stats">📖 ${chap} (${chapCardCount} q)</span>
+                    </div>
+                </label>`;
+            });
+        });
+        container.innerHTML = html;
+    }
+
+    function toggleAllChapters(selectState) {
+        const checkboxes = document.querySelectorAll('input[name="customChapter"]');
+        checkboxes.forEach(chk => chk.checked = selectState);
+    }
+
+    function saveExamSectionChapters() {
+        const checkboxes = document.querySelectorAll('input[name="customChapter"]:checked');
+        let selectedKeys = Array.from(checkboxes).map(chk => chk.value);
+        examSectionsMapping[activeExamSection] = selectedKeys;
+        saveData();
+        alert(`Chapters successfully updated and grouped for "${activeExamSection}"!`);
+        showScreen('dashboard');
+    }
+
+    function openReviewFilterModal() {
+        const dueCards = getDueCards();
+        if(dueCards.length === 0) {
+            alert(`All scheduled box reviews for "${activeExamSection}" today are already completed!`);
+            return;
+        }
+
+        const subSelect = document.getElementById('reviewSubjectSelect');
+        const activeChaps = getActiveSectionChapters();
+        
+        let availableSubjects = new Set();
+        dueCards.forEach(c => availableSubjects.add(c.subject));
+
+        let subHtml = `<option value="ALL">📚 All Subjects (${dueCards.length} cards)</option>`;
+        availableSubjects.forEach(sub => {
+            let subCount = dueCards.filter(c => c.subject === sub).length;
+            subHtml += `<option value="${sub}">📚 ${sub} (${subCount} cards)</option>`;
+        });
+        subSelect.innerHTML = subHtml;
+
+        updateReviewChapterDropdown();
+        document.getElementById('reviewFilterModal').classList.remove('hidden');
+    }
+
+    function closeReviewFilterModal() {
+        document.getElementById('reviewFilterModal').classList.add('hidden');
+    }
+
+    function updateReviewChapterDropdown() {
+        const selectedSub = document.getElementById('reviewSubjectSelect').value;
+        const chapSelect = document.getElementById('reviewChapterSelect');
+        const dueCards = getDueCards();
+
+        let filteredCards = selectedSub === "ALL" ? dueCards : dueCards.filter(c => c.subject === selectedSub);
+
+        let chapHtml = `<option value="ALL">📖 All Chapters (${filteredCards.length} cards)</option>`;
+        
+        let availableChapters = new Set();
+        filteredCards.forEach(c => availableChapters.add(c.chapter));
+
+        availableChapters.forEach(chap => {
+            let chapCount = filteredCards.filter(c => c.chapter === chap).length;
+            chapHtml += `<option value="${chap}">📖 ${chap} (${chapCount} cards)</option>`;
+        });
+
+        chapSelect.innerHTML = chapHtml;
+    }
+
+    function confirmAndStartReview() {
+        const selectedSub = document.getElementById('reviewSubjectSelect').value;
+        const selectedChap = document.getElementById('reviewChapterSelect').value;
+        let dueCards = getDueCards();
+
+        if (selectedSub !== "ALL") {
+            dueCards = dueCards.filter(c => c.subject === selectedSub);
+        }
+        if (selectedChap !== "ALL") {
+            dueCards = dueCards.filter(c => c.chapter === selectedChap);
+        }
+
+        if (dueCards.length === 0) {
+            alert("No review cards match your selected criteria!");
+            return;
+        }
+
+        closeReviewFilterModal();
+        startAutomatedSession(dueCards);
+    }
+
+    function startAutomatedSession(filteredQueue) {
+        const queueToUse = filteredQueue || getDueCards();
+        if(queueToUse.length === 0) {
+            alert(`All scheduled box reviews for "${activeExamSection}" today are already completed!`);
+            return;
+        }
+
+        activeQueue = [...queueToUse];
+        currentCardIndex = 0;
+        showScreen('studyScreen');
+        document.getElementById('studyControls').style.display = 'flex';
+        loadCurrentCard();
+    }
+
+    function formatStructuredQuestion(text) {
+        if(!text) return "";
+        let colonSplit = text.split(/[:;]\s+/);
+        if(colonSplit.length > 1) {
+            let prefix = colonSplit[0].trim() + ":";
+            let statement = colonSplit.slice(1).join(": ").trim();
+            return `<span class="q-prefix">${prefix}</span><span class="q-statement">${statement}</span>`;
+        }
+
+        let rawSentences = text.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g);
+        if(!rawSentences || rawSentences.length <= 1) {
+            return `<span class="sentence-line">${text}</span>`;
+        }
+        return rawSentences.map(s => `<span class="sentence-line">${s.trim()}</span>`).join('');
+    }
+
+    function loadCurrentCard() {
+        const editBtn = document.querySelector('#cardDisplay button');
+        if(currentCardIndex < activeQueue.length) {
+            if(editBtn) editBtn.style.display = 'block';
+            const card = activeQueue[currentCardIndex];
+            document.getElementById('studyBadge').innerText = `${activeExamSection} ➔ ${card.subject} ➔ ${card.chapter} (Box ${card.box})`;
+            document.getElementById('cardCounterTracker').innerText = `Card ${currentCardIndex + 1} of ${activeQueue.length}`;
+            
+            document.getElementById('cardContent').innerHTML = formatStructuredQuestion(card.q);
+            
+            let nextBoxIndex = card.box < 5 ? card.box + 1 : 5;
+            let nextIntervalDays = LEITNER_INTERVALS[nextBoxIndex - 1];
+            document.getElementById('nextIntervalLabel').innerText = `(Box ${nextBoxIndex}: +${nextIntervalDays} Days)`;
+        } else {
+            if(editBtn) editBtn.style.display = 'none';
+            const todayStr = getTodayDateString();
+            if(streak.lastDate !== todayStr) {
+                streak.count += 1;
+                streak.lastDate = todayStr;
+                saveData();
+            }
+
+            document.getElementById('cardContent').innerHTML = `<span class="sentence-line">🎉 <strong>Session Complete for ${activeExamSection}!</strong></span><span class="sentence-line">Great job completing your scheduled reviews for today.</span>`;
+            document.getElementById('studyBadge').innerText = "Session Complete";
+            document.getElementById('cardCounterTracker').innerText = "";
+            document.getElementById('studyControls').style.display = 'none';
+        }
+    }
+
+    function processReview(rating) {
+        if(currentCardIndex >= activeQueue.length) return;
+        const currentCard = activeQueue[currentCardIndex];
+        const masterIndex = cards.findIndex(c => c.id === currentCard.id);
+        if(masterIndex === -1) return;
+
+        let targetCard = cards[masterIndex];
+        const todayStr = getTodayDateString();
+        targetCard.lastCompletedDate = todayStr;
+
+        if (rating === 1) {
+            targetCard.box = 1;
+            targetCard.nextReviewDate = addDaysToDate(todayStr, LEITNER_INTERVALS[0]);
+        } else {
+            if (targetCard.box < 5) targetCard.box += 1;
+            let daysToAdd = LEITNER_INTERVALS[targetCard.box - 1];
+            targetCard.nextReviewDate = addDaysToDate(todayStr, daysToAdd);
+        }
+
+        saveData();
+        currentCardIndex++;
+        loadCurrentCard();
+    }
+
+    function populateDropdowns(prefix) {
+        const subSelect = document.getElementById(prefix + 'SubjectSelect');
+        if(!subSelect) return;
+        subSelect.innerHTML = subjectsData.length === 0 ? `<option value="">-- No Subjects Available --</option>` :
+            subjectsData.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        updateChapterDropdownsForCreator(prefix);
+    }
+
+    function updateChapterDropdownsForCreator(prefix) {
+        const subSelectVal = document.getElementById(prefix + 'SubjectSelect').value;
+        const chapSelect = document.getElementById(prefix + 'ChapterSelect');
+        if(!chapSelect) return;
+        const found = subjectsData.find(s => s.name === subSelectVal);
+        const chapters = found ? found.chapters : [];
+
+        chapSelect.innerHTML = chapters.length === 0 ? `<option value="">-- No Chapters Available --</option>` :
+            chapters.map(ch => `<option value="${ch}">${ch}</option>`).join('');
+    }
+
+    function addSingleCard() {
+        const subject = document.getElementById('singleSubjectSelect').value;
+        const chapter = document.getElementById('singleChapterSelect').value;
+        const q = document.getElementById('singleQuestion').value.trim();
+        
+        if(!subject || !chapter || !q) {
+            alert('Please select a Subject, Chapter, and enter a Question.');
+            return;
+        }
+
+        cards.push({
+            id: Date.now() + Math.random(),
+            subject,
+            chapter,
+            q,
+            box: 1,
+            nextReviewDate: getTodayDateString(),
+            lastCompletedDate: ""
+        });
+
+        saveData();
+        document.getElementById('singleQuestion').value = '';
+        alert('Question added successfully!');
+        showScreen('dashboard');
+    }
+
+    function addBulkCards() {
+        const subject = document.getElementById('bulkSubjectSelect').value;
+        const chapter = document.getElementById('bulkChapterSelect').value;
+        const rawText = document.getElementById('bulkQuestionsText').value;
+        
+        if(!subject || !chapter || !rawText.trim()) {
+            alert('Please select a Subject, Chapter, and paste questions.');
+            return;
+        }
+
+        const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if(lines.length === 0) {
+            alert('No valid questions found.');
+            return;
+        }
+
+        lines.forEach((q, idx) => {
+            cards.push({
+                id: Date.now() + idx + Math.random(),
+                subject,
+                chapter,
+                q,
+                box: 1,
+                nextReviewDate: getTodayDateString(),
+                lastCompletedDate: ""
+            });
+        });
+
+        saveData();
+        document.getElementById('bulkQuestionsText').value = '';
+        alert(`Successfully imported ${lines.length} questions in bulk!`);
+        showScreen('dashboard');
+    }
+
+    function renderProgressScreen() {
+        const container = document.getElementById('progressContent');
+        const activeChaps = getActiveSectionChapters();
+        
+        if(cards.length === 0 || activeChaps.length === 0) {
+            container.innerHTML = `<p style="text-align: center; color: var(--text-muted);">No active chapters/cards found for <strong>${activeExamSection}</strong>.</p>`;
+            return;
+        }
+
+        let chapterMap = {};
+        activeChaps.forEach(key => {
+            let parts = key.split("___");
+            chapterMap[key] = { subject: parts[0], chapter: parts[1], total: 0, mastered: 0 };
+        });
+
+        cards.forEach(c => {
+            let key = `${c.subject}___${c.chapter}`;
+            if(chapterMap[key]) {
+                chapterMap[key].total += 1;
+                if(c.box === 5) chapterMap[key].mastered += 1;
+            }
+        });
+
+        let html = `<table class="progress-table">
+            <tr>
+                <th>Subject</th>
+                <th>Chapter</th>
+                <th>Total Questions</th>
+                <th>Mastered (Box 5)</th>
+                <th>Mastery Progress</th>
+            </tr>`;
+
+        let hasRows = false;
+        for(let key in chapterMap) {
+            let item = chapterMap[key];
+            hasRows = true;
+            let percent = item.total > 0 ? Math.round((item.mastered / item.total) * 100) : 0;
+
+            html += `<tr>
+                <td><strong>${item.subject}</strong></td>
+                <td>${item.chapter}</td>
+                <td>${item.total}</td>
+                <td>${item.mastered} / ${item.total}</td>
+                <td>
+                    ${percent}%
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+                    </div>
+                </td>
+            </tr>`;
+        }
+
+        if(!hasRows) {
+            html += `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No active modules found.</td></tr>`;
+        }
+        html += `</table>`;
+        container.innerHTML = html;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        autoExportDataJSON();
+        showScreen('dashboard');
+    });
+</script>
+
+</body></html>
